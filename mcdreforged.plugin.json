@@ -1,0 +1,11 @@
+{
+    "id": "player_command_plus",
+    "version": "1.0.0",
+    "name": "PlayerCommandPlus",
+    "description": "A MCDR plugin to strengthen the ability of player command",
+    "author": "woshikedayaa",
+    "link": "https://github.com/woshikedayaa/playerCommandPlus",
+    "dependencies": {
+       "mcdreforged": ">=2.6"
+    }
+}
