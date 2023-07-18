@@ -2,57 +2,87 @@ from player_command_plus import globalVar
 from mcdreforged.api.types import CommandSource
 import minecraft_data_api as api
 from mcdreforged.api.all import *
-import time
-def SpawnBots(source,ctx):
+from player_command_plus import utils
+
+@new_thread('PlayerCommandPlus')
+def OperateBots(source:CommandSource,ctx):
     if source.is_player==False:
+        source.reply("只有玩家可使用")
         return
-    #time.sleep(0.5)
-    if ctx["count"]<0 or ctx["count"]>15:
-        globalVar.Server.say("数量过大或过小!")
+    action:str = ctx["action"]
+    botName = ctx["name"]
+    server = source.get_server()
+    #处理假人列表
+    BotList = []
+    #初始化假人列表
+    Index = botName.find("[")
+    if Index>0:
+        #检测是否完整括号
+        if utils.CheckBrackets(botName[Index:len(botName)])==False:
+            source.reply("不完整的括号")
+            return
+        
+        ranges = botName[Index+1:-1].split("-")
+        start = int(ranges[0])
+        end = int(ranges[1])+1
+        
+        for i in range(end-start):
+            BotList.append(botName[:Index]+str(i+start))
+    else:
+        BotList.append(botName)
+    
+    #处理下action
+    actionArray = action.split(".")
+    
+    if actionArray[0] in globalVar.customCommand:
+        #这里处理插件自定义的命令
         return
-    #解析地址参数
-    #pos = ctx["location"][1:len(ctx["location"])-1].split(",")
-    # if len(globalVar.whoCall)==0:
-    #     globalVar.Server.say("未知错误")
-    #     globalVar.Server.logger.error("未知错误")
-    #     return
-    print(source)
-    
-    name = source.player
-    location = GetPlayerLocation(name)
-    dimension = GetPlayerDimesion(name)
-    time.sleep(1)
-    
-    for i in range(ctx["count"]):
-        print(i,location)
-       #globalVar.Server.execute("player {}{} spawn at {} {} {} facing 0 0 in {} in survival".format(ctx["prefix"],str(i),location.x,location.y,location.z,dimension))
+    else:
+        #生成假人
+        if action == "spawn":
+            #只有生成假人获取坐标才有意义
+            # pos = GetPlayerLocation(source.player).get_return_value(block=True)
+            # dimesion = GetPlayerDimesion(source.player).get_return_value(block=True)
+            pos = GetPlayerLocation(source.player)
+            dimesion = GetPlayerDimesion(source.player)
+            gamemode = ["survival","creative","adventure","spectator"][GetPlayerGamemode(source.player)]
+            #print(pos)
+            for elem in BotList:
+                #提升效率(偷懒)不弄facing了
+                #报错让他自己憋去吧
+                server.execute("player {} spawn at {} {} {} facing 0 0 in {} in {}".format(elem,pos.x,pos.y,pos.z,dimesion,gamemode))
+        else:
+            #把action变成carpet看得懂的样子
+            action = action.replace("."," ",-1)
+            for elem in BotList:
+                #报错让他自己憋去吧
+                server.execute("player {} {}".format(elem,action))
+            return
     return
 
-def OperateBots(source,ctx):
-    if len(ctx)<3:
-        globalVar.Server.say("参数不足!")
-        return
-    if ctx["count"]<0:
-        globalVar.Server.say("参数错误!")
-        return
-    for i in range(ctx["count"]):
-        globalVar.Server.execute("player "+ctx["name"]+str(i)+" "+ctx["action"][1:len(ctx["action"])-1])
-    return
+def Help(source:CommandSource):
+    source.reply(
+'''
+------------PlayerCommandPlus
+1-!!pcp help 显示该消息
+2-!!pcp name[范围] [操作]
+  例1-!!pcp hello spawn 
+  召唤名为hello假人
+  例2-!!pcp hello[0-2] spawn 
+  召唤名为 hello0,hello1,hello2的假人
+  例3-!!pcp hello[0-2] jump.interval.10
+  让hello0,hello1,hello2假人每10gt跳一次
+  -----------------------------''')
 
-def Help():
-    globalVar.Server.say("PCP使用指南")
-    globalVar.Server.say("!!pcp spawn <数量> <名字> <维度> <坐标>")
-    globalVar.Server.say("维度:overworld-主世界:nether-地狱:end-末地")
-    globalVar.Server.say("例:!!pcp spawn 10 hello overworld [0,100,0]")
-    globalVar.Server.say("该指令将会在主世界[0,100,0]召唤10个 hello开头的假人")
-    globalVar.Server.say("!!pcp operate <数量> <名字> <操作>")
-    globalVar.Server.say("例:!!pcp operate 10 hello [kill]")
-    globalVar.Server.say("该指令会把10个hello开头的假人下线")
 
-@new_thread('PlayerCommandPlus')
 def GetPlayerLocation(name):
-    return api.get_player_coordinate(name)
+    pos = api.get_player_coordinate(name)
+    return pos
 
-@new_thread('PlayerCommandPlus')
 def GetPlayerDimesion(name):
-    return ["minecraft:overworld","minecraft:the_end","minecraft:the_nether"][api.get_player_dimension(name)]
+    #return ["minecraft:overworld","minecraft:the_end","minecraft:the_nether"][api.get_player_dimension(name)]
+    dimesion = api.get_player_info(name,"Dimension")
+    return dimesion
+
+def GetPlayerGamemode(name):
+    return api.get_player_info(name,"playerGameType")

@@ -40,15 +40,15 @@ def ReadConfigFile():
 def RegistCommand(server):
     b = command.SimpleCommandBuilder()
     '''command'''
-    b.command("!!pcp spawn <count> <prefix>",callback.SpawnBots)
-    '''//支持正则//'''
-    b.command("!!pcp operate <count> <prefix> <action>",callback.OperateBots)
+  
+    b.command("!!pcp <name> <action>",callback.OperateBots) #支持正则
     
+    #help
     b.command("!!pcp help",callback.Help)
     b.command("!!pcp",callback.Help)
     '''args'''
-    b.arg("prefix",command.Text)
-    b.arg("count",command.Integer)
+    b.arg("name",command.Text)
+    #b.arg("count",command.Integer)
     b.arg("action",command.Text)
     '''regist'''
     b.register(server)
