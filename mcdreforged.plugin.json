@@ -6,6 +6,7 @@
     "author": "woshikedayaa",
     "link": "https://github.com/woshikedayaa/playerCommandPlus",
     "dependencies": {
+        "minecraft_data_api": "*",
        "mcdreforged": ">=2.6"
     }
 }

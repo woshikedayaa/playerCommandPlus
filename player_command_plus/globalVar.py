@@ -4,3 +4,5 @@ def SetGlobals(server :ServerInterface,config):
     Server = server
     global serverConfig
     serverConfig = config
+    global whoCall
+    whoCall = []
