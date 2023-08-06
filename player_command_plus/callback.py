@@ -1,8 +1,8 @@
-from player_command_plus import globalVar
+from player_command_plus import global_var
 from mcdreforged.api.types import CommandSource
-import minecraft_data_api as api
 from mcdreforged.api.all import *
 from player_command_plus import utils
+from player_command_plus import custom_callback
 
 @new_thread('PlayerCommandPlus')
 def OperateBots(source:CommandSource,ctx):
@@ -29,13 +29,17 @@ def OperateBots(source:CommandSource,ctx):
         for i in range(end-start):
             BotList.append(botName[:Index]+str(i+start))
     else:
+        if botName.find("]")>0:
+            source.reply("名称错误")
+            return
         BotList.append(botName)
     
     #处理下action
     actionArray = action.split(".")
     
-    if actionArray[0] in globalVar.customCommand:
+    if actionArray[0] in global_var.customCommands:
         #这里处理插件自定义的命令
+        #global_var.customCommands[actionArray[0]](source,ctx,BotList,actionArray)
         return
     else:
         #生成假人
@@ -43,14 +47,16 @@ def OperateBots(source:CommandSource,ctx):
             #只有生成假人获取坐标才有意义
             # pos = GetPlayerLocation(source.player).get_return_value(block=True)
             # dimesion = GetPlayerDimesion(source.player).get_return_value(block=True)
-            pos = GetPlayerLocation(source.player)
-            dimesion = GetPlayerDimesion(source.player)
-            gamemode = ["survival","creative","adventure","spectator"][GetPlayerGamemode(source.player)]
-            #print(pos)
+            pos = utils.GetPlayerLocation(source.player)
+            dimesion = utils.GetPlayerDimesion(source.player)
+            Rotation = utils.GetPlayerRotation(source.player)
+            gamemode = ["survival","creative","adventure","spectator"][utils.GetPlayerGamemode(source.player)]
+            
+            print(Rotation)
             for elem in BotList:
-                #提升效率(偷懒)不弄facing了
                 #报错让他自己憋去吧
-                server.execute("player {} spawn at {} {} {} facing 0 0 in {} in {}".format(elem,pos.x,pos.y,pos.z,dimesion,gamemode))
+                spawnStr = "player {} spawn at {} {} {} facing {} {} in {} in {}".format(elem,pos.x,pos.y,pos.z,Rotation[0],Rotation[1],dimesion,gamemode)
+                server.execute(spawnStr)
         else:
             #把action变成carpet看得懂的样子
             action = action.replace("."," ",-1)
@@ -73,16 +79,3 @@ def Help(source:CommandSource):
   例3-!!pcp hello[0-2] jump.interval.10
   让hello0,hello1,hello2假人每10gt跳一次
   -----------------------------''')
-
-
-def GetPlayerLocation(name):
-    pos = api.get_player_coordinate(name)
-    return pos
-
-def GetPlayerDimesion(name):
-    #return ["minecraft:overworld","minecraft:the_end","minecraft:the_nether"][api.get_player_dimension(name)]
-    dimesion = api.get_player_info(name,"Dimension")
-    return dimesion
-
-def GetPlayerGamemode(name):
-    return api.get_player_info(name,"playerGameType")

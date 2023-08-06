@@ -2,9 +2,10 @@ from mcdreforged.api import command
 from mcdreforged.api.types import PluginServerInterface,Info
 import os
 import json
+import time
 from .callback import *
 '''from .globalVar import '''
-from .globalVar import *
+from .global_var import *
 
 const ={
     "configFilePath":"config/player_command_plus.json",
