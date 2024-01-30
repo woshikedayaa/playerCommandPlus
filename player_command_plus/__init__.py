@@ -1,10 +1,8 @@
 from mcdreforged.api import command
-from mcdreforged.api.types import PluginServerInterface,Info
+from mcdreforged.api.types import PluginServerInterface
 import os
 import json
-import time
 from .callback import *
-'''from .globalVar import '''
 from .global_var import *
 
 const ={

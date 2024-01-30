@@ -1,8 +1,9 @@
 from mcdreforged.api.types import ServerInterface
-from player_command_plus import  custom_callback
+serverConfig = dict({})
+vaild_action_dict =set({})
 def SetGlobals(server :ServerInterface,config:dict):
     global serverConfig
-    serverConfig:dict = config
+    serverConfig = config
     global vaild_action_dict
     vaild_action_dict={
         "attack",

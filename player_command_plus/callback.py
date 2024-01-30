@@ -2,7 +2,6 @@ from player_command_plus import global_var
 from mcdreforged.api.types import CommandSource
 from mcdreforged.api.all import *
 from player_command_plus import utils
-from player_command_plus import custom_callback
 
 @new_thread('PlayerCommandPlus')
 def OperateBots(source:CommandSource,ctx):

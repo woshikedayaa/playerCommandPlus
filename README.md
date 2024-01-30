@@ -18,6 +18,17 @@ carpet:/player hello0 kill,/player hello1 kill...
 carpet:/player hello0 jump interval 10,/player hello0 jump interval 10  
 ```
 
+## config
+```js
+{
+    // 前缀 #none 代表没有
+    "prefix":"#none",
+    // 后缀 #none 代表没有
+    "suffix":"#none"
+}
+
+```
+
 ## 作者
 
 woshikedayaa  
