@@ -11,7 +11,8 @@ const ={
     "configFilePath":"config/player_command_plus.json",
 }
 DefaultConfig = {
-        "prefix":"#none"
+        "prefix":"#none",
+        "suffix":"#none"
 }
 
 def on_load(server:PluginServerInterface,old):
@@ -20,11 +21,6 @@ def on_load(server:PluginServerInterface,old):
     RegistCommand(server)
     server.register_help_message("!!pcp","你的批量假人助手")
 
-def on_info(server:PluginServerInterface,info:Info):
-    # if info.is_player == True and "!!pcp " in info.content:
-    #     globalVar.whoCall.append(info.player)
-    #     print(globalVar.whoCall)
-    return
 
 def GenerateConfigFile():
     if os.path.exists(const["configFilePath"]) == False:

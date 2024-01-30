@@ -1,7 +1,5 @@
 from mcdreforged.api.types import ServerInterface
 from player_command_plus import  custom_callback
-def SetGlobals(server :ServerInterface,config):
+def SetGlobals(server :ServerInterface,config:dict):
     global serverConfig
-    serverConfig = config
-    global customCommands
-    customCommands = {}
+    serverConfig:dict = config

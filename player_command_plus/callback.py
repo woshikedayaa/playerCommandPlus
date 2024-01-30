@@ -23,9 +23,15 @@ def OperateBots(source:CommandSource,ctx):
             return
         
         ranges = botName[Index+1:-1].split("-")
+        if len(ranges)!=2:
+            source.reply("数字过多或过少")
+            return
         start = int(ranges[0])
         end = int(ranges[1])+1
         
+        prefix = "" if global_var.serverConfig["prefix"]=="#none" else global_var.serverConfig["prefix"]
+        suffix = "" if global_var.serverConfig["suffix"]=="#none" else global_var.serverConfig["suffix"]
+
         for i in range(end-start):
             BotList.append(botName[:Index]+str(i+start))
     else:
@@ -36,35 +42,27 @@ def OperateBots(source:CommandSource,ctx):
     
     #处理下action
     actionArray = action.split(".")
-    
-    if actionArray[0] in global_var.customCommands:
-        #这里处理插件自定义的命令
-        #global_var.customCommands[actionArray[0]](source,ctx,BotList,actionArray)
-        return
+    #生成假人
+    if action[0] == "spawn":
+        #只有生成假人获取坐标才有意义
+        pos = utils.GetPlayerLocation(source.player)
+        dimesion = utils.GetPlayerDimesion(source.player)
+        Rotation = utils.GetPlayerRotation(source.player)
+        gamemode = ["survival","creative","adventure","spectator"][utils.GetPlayerGamemode(source.player)]
+        
+        for elem in BotList:
+            #报错让他自己憋去吧
+            # 2024-1-30 加一个map就能让用户知道错了
+            spawnStr = "player {} spawn at {} {} {} facing {} {} in {} in {}".format(elem,pos.x,pos.y,pos.z,Rotation[0],Rotation[1],dimesion,gamemode)
+            server.execute(spawnStr)
     else:
-        #生成假人
-        if action == "spawn":
-            #只有生成假人获取坐标才有意义
-            # pos = GetPlayerLocation(source.player).get_return_value(block=True)
-            # dimesion = GetPlayerDimesion(source.player).get_return_value(block=True)
-            pos = utils.GetPlayerLocation(source.player)
-            dimesion = utils.GetPlayerDimesion(source.player)
-            Rotation = utils.GetPlayerRotation(source.player)
-            gamemode = ["survival","creative","adventure","spectator"][utils.GetPlayerGamemode(source.player)]
-            
-            print(Rotation)
-            for elem in BotList:
-                #报错让他自己憋去吧
-                spawnStr = "player {} spawn at {} {} {} facing {} {} in {} in {}".format(elem,pos.x,pos.y,pos.z,Rotation[0],Rotation[1],dimesion,gamemode)
-                server.execute(spawnStr)
-        else:
-            #把action变成carpet看得懂的样子
-            action = action.replace("."," ",-1)
-            for elem in BotList:
-                #报错让他自己憋去吧
-                server.execute("player {} {}".format(elem,action))
-            return
-    return
+        #把action变成carpet看得懂的样子
+        action = action.replace("."," ",-1)
+        for elem in BotList:
+            #报错让他自己憋去吧
+            # 2024-1-30 加一个map就能让用户知道错了
+            server.execute("player {} {}".format(prefix+elem+suffix,action))
+        return
 
 def Help(source:CommandSource):
     source.reply(
