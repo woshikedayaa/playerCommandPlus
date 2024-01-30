@@ -28,9 +28,6 @@ def OperateBots(source:CommandSource,ctx):
             return
         start = int(ranges[0])
         end = int(ranges[1])+1
-        
-        prefix = "" if global_var.serverConfig["prefix"]=="#none" else global_var.serverConfig["prefix"]
-        suffix = "" if global_var.serverConfig["suffix"]=="#none" else global_var.serverConfig["suffix"]
 
         for i in range(end-start):
             BotList.append(botName[:Index]+str(i+start))
@@ -43,7 +40,8 @@ def OperateBots(source:CommandSource,ctx):
     #处理下action
     actionArray = action.split(".")
     #生成假人
-    if action[0] == "spawn":
+    # 2024-1-30 加一个set就能让用户知道错了
+    if actionArray[0] == "spawn":
         #只有生成假人获取坐标才有意义
         pos = utils.GetPlayerLocation(source.player)
         dimesion = utils.GetPlayerDimesion(source.player)
@@ -52,15 +50,19 @@ def OperateBots(source:CommandSource,ctx):
         
         for elem in BotList:
             #报错让他自己憋去吧
-            # 2024-1-30 加一个map就能让用户知道错了
             spawnStr = "player {} spawn at {} {} {} facing {} {} in {} in {}".format(elem,pos.x,pos.y,pos.z,Rotation[0],Rotation[1],dimesion,gamemode)
             server.execute(spawnStr)
     else:
         #把action变成carpet看得懂的样子
+        if actionArray[0] not in global_var.vaild_action_dict:
+            source.reply("未知的action")
+            return
         action = action.replace("."," ",-1)
+        prefix = "" if global_var.serverConfig["prefix"]=="#none" else global_var.serverConfig["prefix"]
+        suffix = "" if global_var.serverConfig["suffix"]=="#none" else global_var.serverConfig["suffix"]
         for elem in BotList:
             #报错让他自己憋去吧
-            # 2024-1-30 加一个map就能让用户知道错了
+            
             server.execute("player {} {}".format(prefix+elem+suffix,action))
         return
 
